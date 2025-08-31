@@ -1,0 +1,5 @@
+POST https://app.jbmanager.com/api/mobile/login
+{
+  email: "to@jbmanager.com",
+  password: "admin_db"
+}
