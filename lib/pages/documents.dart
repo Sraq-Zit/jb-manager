@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:jbmanager/models/document.dart';
 import 'package:jbmanager/providers/document_provider.dart';
-import 'package:jbmanager/screens/detail_screen.dart';
+import 'package:jbmanager/screens/detail.dart';
 import 'package:jbmanager/theme/color_palette.dart';
 import 'package:jbmanager/theme/sizes.dart';
 import 'package:jbmanager/widgets/loader.dart';
@@ -449,19 +449,20 @@ class _DocumentsPageState extends State<DocumentsPage>
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => DetailScreen(documentId: documentId),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            DetailScreen(documentId: documentId),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(-1.0, 0.0);
           const end = Offset.zero;
           const curve = Curves.easeInOut;
 
-          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var tween = Tween(
+            begin: begin,
+            end: end,
+          ).chain(CurveTween(curve: curve));
           var offsetAnimation = animation.drive(tween);
 
-          return SlideTransition(
-            position: offsetAnimation,
-            child: child,
-          );
+          return SlideTransition(position: offsetAnimation, child: child);
         },
       ),
     );
