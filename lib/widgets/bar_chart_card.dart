@@ -1,26 +1,26 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/theme/color_palette.dart';
-import 'package:flutter_app/theme/sizes.dart';
+import 'package:jbmanager/theme/color_palette.dart';
+import 'package:jbmanager/theme/sizes.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
 enum Variation { axis, rods }
 
-class BarChartCard extends StatefulWidget {
-  late final String title;
-  late final IconData icon;
-  late final Color color;
-  late final BarChartData barChartData;
-  late final List<String>? legendLabels;
-  late final List<String>? axisLabels;
-  late final bool showLegends;
-  late final Variation variation;
-  late final double? barWidth;
+class BarChartCard extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final Color color;
+  final BarChartData barChartData;
+  final List<String>? legendLabels;
+  final List<String>? axisLabels;
+  final bool showLegends;
+  final Variation variation;
+  final double? barWidth;
+  final double height;
 
-  BarChartCard({
-    Key? key,
+  const BarChartCard({
+    super.key,
     required this.title,
     required this.icon,
     required this.color,
@@ -30,58 +30,12 @@ class BarChartCard extends StatefulWidget {
     this.showLegends = true,
     this.variation = Variation.axis,
     this.barWidth,
-  }) : super(key: key);
-
-  @override
-  _BarChartCardState createState() => _BarChartCardState();
-}
-
-class _BarChartCardState extends State<BarChartCard> {
-  late final String title;
-  late final IconData icon;
-  late final Color color;
-  late final BarChartData barChartData;
-  late final List<String>? legendLabels;
-  late final List<String>? axisLabels;
-  late final bool showLegends;
-  late final Variation variation;
-  late final double? barWidth;
-
-  late double _maxY;
-
-  bool _isVisible = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    title = widget.title;
-    icon = widget.icon;
-    color = widget.color;
-    barChartData = widget.barChartData;
-    legendLabels = widget.legendLabels;
-    axisLabels = widget.axisLabels;
-    showLegends = widget.showLegends;
-    variation = widget.variation;
-    barWidth = widget.barWidth;
-
-    _maxY = barChartData.barGroups
-        .map((g) => g.barRods.map((r) => r.toY).reduce((a, b) => a + b))
-        .reduce((a, b) => a > b ? a : b);
-  }
+    this.height = 200,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return VisibilityDetector(
-      key: Key(title),
-      onVisibilityChanged: (visibilityInfo) {
-        if (visibilityInfo.visibleFraction > 0.5) {
-          setState(() {
-            _isVisible = true;
-          });
-        }
-      },
-
+    return RepaintBoundary(
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -133,10 +87,10 @@ class _BarChartCardState extends State<BarChartCard> {
                 ),
               const SizedBox(height: 16),
               SizedBox(
-                height: 200,
+                height: height,
                 child: BarChart(
                   barChartData.copyWith(
-                    // maxY: _isVisible ? null : _maxY * 10,
+                    barTouchData: BarTouchData(enabled: false),
                     barGroups: barChartData.barGroups.asMap().entries.map((
                       entry,
                     ) {
@@ -194,7 +148,8 @@ class _BarChartCardState extends State<BarChartCard> {
                             final style = TextStyle(
                               color: Colors.grey.shade500,
                               fontWeight: FontWeight.bold,
-                              fontSize: Sizes.textSm,
+                              fontSize:
+                                  Sizes.textSm - 2 * axisLabels!.length / 12,
                             );
                             final label = axisLabels == null
                                 ? value.toInt().toString()
@@ -212,8 +167,6 @@ class _BarChartCardState extends State<BarChartCard> {
                           FlLine(color: Colors.grey.shade100),
                     ),
                   ),
-                  duration: const Duration(seconds: 1),
-                  curve: Curves.fastLinearToSlowEaseIn,
                 ),
               ),
             ],

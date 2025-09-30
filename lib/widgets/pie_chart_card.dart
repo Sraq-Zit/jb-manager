@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter_app/theme/sizes.dart';
+import 'package:jbmanager/theme/sizes.dart';
+import 'package:jbmanager/widgets/frozen_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_app/theme/color_palette.dart';
-import 'package:visibility_detector/visibility_detector.dart';
+import 'package:jbmanager/theme/color_palette.dart';
 
 enum Unit { currency, percentage }
 
-class PieChartCard extends StatefulWidget {
+class PieChartCard extends StatelessWidget {
   final String title;
   final IconData icon;
   final List<String> legends;
@@ -22,7 +22,7 @@ class PieChartCard extends StatefulWidget {
   final double _pieRadius = 35;
 
   const PieChartCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.icon,
     required this.legends,
@@ -32,39 +32,14 @@ class PieChartCard extends StatefulWidget {
     this.subValue = '',
     this.unit = Unit.currency,
     this.currency = 'DH',
-  }) : super(key: key);
-
-  @override
-  _PieChartCardState createState() => _PieChartCardState();
-}
-
-class _PieChartCardState extends State<PieChartCard> {
-  late double _sum;
-  late List<double> _percents;
-  bool _isVisible = false;
-  List<double> _animatedData = [];
-
-  @override
-  void initState() {
-    super.initState();
-
-    _sum = widget.data.reduce((a, b) => a + b);
-    _percents = widget.data.map((v) => v / _sum).toList();
-    _animatedData = widget.data + [_sum * 100];
-  }
+  });
 
   @override
   Widget build(BuildContext context) {
-    return VisibilityDetector(
-      key: Key(widget.title),
-      onVisibilityChanged: (visibilityInfo) {
-        if (visibilityInfo.visibleFraction > 0.5 && !_isVisible) {
-          setState(() {
-            _isVisible = true;
-            _animatedData.last = 0;
-          });
-        }
-      },
+    final sum = data.reduce((a, b) => a + b);
+    final percents = data.map((v) => v / sum).toList();
+    return FrozenWidget(
+      identifier: title,
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -87,13 +62,13 @@ class _PieChartCardState extends State<PieChartCard> {
                     padding: const EdgeInsets.all(8),
                     child: Padding(
                       padding: EdgeInsets.all(2.0),
-                      child: Icon(widget.icon, size: 22, color: Colors.white),
+                      child: Icon(icon, size: 22, color: Colors.white),
                     ),
                   ),
                   const SizedBox(width: 8),
                   RichText(
                     text: TextSpan(
-                      text: widget.title,
+                      text: title,
                       style: GoogleFonts.inter(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -112,23 +87,18 @@ class _PieChartCardState extends State<PieChartCard> {
                       PieChartData(
                         centerSpaceRadius: 45,
                         sectionsSpace: 4,
-                        sections: _animatedData.asMap().entries.map((entry) {
+                        sections: data.asMap().entries.map((entry) {
                           final index = entry.key;
                           final value = entry.value;
                           final colors = ColorPalette.chartColors;
-                          final color = index < widget.data.length
-                              ? colors[index % colors.length]
-                              : Colors.transparent;
                           return PieChartSectionData(
-                            color: color,
+                            color: colors[index % colors.length],
                             value: value,
-                            radius: widget._pieRadius,
+                            radius: _pieRadius,
                             title: '',
                           );
                         }).toList(),
                       ),
-                      duration: const Duration(seconds: 5),
-                      curve: Curves.fastLinearToSlowEaseIn,
                     ),
                   ),
                   Positioned.fill(
@@ -139,7 +109,7 @@ class _PieChartCardState extends State<PieChartCard> {
                           RichText(
                             text: TextSpan(
                               text: NumberFormat.compact().format(
-                                widget.data.reduce((a, b) => a + b),
+                                data.reduce((a, b) => a + b),
                               ),
                               style: GoogleFonts.inter(
                                 fontSize: 24,
@@ -150,7 +120,7 @@ class _PieChartCardState extends State<PieChartCard> {
                           ),
                           RichText(
                             text: TextSpan(
-                              text: widget.totalLabel,
+                              text: totalLabel,
                               style: GoogleFonts.inter(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
@@ -167,29 +137,37 @@ class _PieChartCardState extends State<PieChartCard> {
               const SizedBox(height: 16),
               Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: widget.data.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final value = entry.value;
-                  final colors = [Colors.blue, Colors.orange];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: _buildDetailTile(
-                      title: widget.legends[index % widget.legends.length],
-                      value: value,
-                      percentage: _percents[index] * 100,
-                      color: colors[index % colors.length],
-                    ),
-                  );
-                }).toList(),
+                children:
+                    (data.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final value = entry.value;
+                      final colors = ColorPalette.chartColors;
+                      return (
+                        legends[index % legends.length],
+                        value,
+                        percents[index] * 100,
+                        colors[index % colors.length],
+                      );
+                    }).toList()..sort((a, b) => b.$2.compareTo(a.$2))).map((e) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: _buildDetailTile(
+                          title: e.$1,
+                          value: e.$2,
+                          percentage: e.$3,
+                          color: e.$4,
+                        ),
+                      );
+                    }).toList(),
               ),
               const SizedBox(height: 16),
 
-              if (widget.subValue.isNotEmpty && widget.subTitle.isNotEmpty)
+              if (subValue.isNotEmpty && subTitle.isNotEmpty)
                 Column(
                   children: [
                     RichText(
                       text: TextSpan(
-                        text: widget.subTitle,
+                        text: subTitle,
                         style: GoogleFonts.inter(
                           fontSize: Sizes.textSm,
                           fontWeight: Sizes.weightMedium,
@@ -200,7 +178,7 @@ class _PieChartCardState extends State<PieChartCard> {
                     SizedBox(height: 4),
                     RichText(
                       text: TextSpan(
-                        text: widget.subValue,
+                        text: subValue,
                         style: GoogleFonts.inter(
                           fontSize: Sizes.textXl,
                           fontWeight: Sizes.weightExtraBold,
@@ -268,8 +246,8 @@ class _PieChartCardState extends State<PieChartCard> {
               SizedBox(
                 width: 32,
                 child: Text(
-                  widget.unit == Unit.currency
-                      ? widget.currency
+                  unit == Unit.currency
+                      ? currency
                       : '${percentage.round().toString()}%',
                   textAlign: TextAlign.end,
                   style: TextStyle(fontSize: 12, color: Colors.grey),

@@ -17,11 +17,9 @@ class AuthService {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         return responseData['token']; // Assuming the token is returned under 'token'
       } else {
-        print('Login failed: ${response.body}');
         return null;
       }
     } catch (e) {
-      print('Error during login: $e');
       return null;
     }
   }

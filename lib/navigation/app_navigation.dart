@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../screens/main.dart';
+
+import '../screens/home.dart';
 import '../theme/app_theme.dart';
 
 class AppNavigation extends StatelessWidget {
-  const AppNavigation({Key? key}) : super(key: key);
+  const AppNavigation({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +12,7 @@ class AppNavigation extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'JB Manager',
       theme: AppTheme.themeData,
-      home: const MainScreen(),
+      // home: const MainScreen(),
     );
   }
 }

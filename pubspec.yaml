@@ -1,4 +1,4 @@
-name: flutter_app
+name: jbmanager
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -43,6 +43,12 @@ dependencies:
   http: ^1.5.0
   intl: ^0.20.2
   visibility_detector: ^0.4.0+2
+  shared_preferences: ^2.5.3
+  fluttertoast: ^8.2.12
+  themed: ^8.1.0
+  permission_handler: ^12.0.1
+  flutter_vap_plus: ^1.2.10
+  archive: ^4.0.7
 
 dev_dependencies:
   flutter_test:
@@ -67,9 +73,11 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/images/rlogo.png
+    - assets/images/splash-bg.jpg
+    - assets/animations/blob_frames.zip
+    - assets/animations/output.webp
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

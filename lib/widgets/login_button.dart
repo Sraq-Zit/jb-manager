@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 
 class LoginButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final String label;
 
-  const LoginButton({Key? key, required this.label, this.onPressed})
-    : super(key: key);
+  const LoginButton({super.key, required this.label, this.onPressed});
 
   @override
   State<LoginButton> createState() => _LoginButtonState();

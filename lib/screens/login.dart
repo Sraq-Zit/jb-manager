@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/screens/main.dart';
-import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
-import 'package:flutter_app/theme/sizes.dart';
-import 'package:flutter_app/widgets/login_button.dart';
+import 'package:flutter/services.dart';
+import 'package:jbmanager/constants/assets.dart';
+import 'package:jbmanager/main.dart';
+import 'package:jbmanager/screens/home.dart';
+import 'package:jbmanager/theme/sizes.dart';
+import 'package:jbmanager/widgets/login_button.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen>
@@ -30,8 +34,16 @@ class _LoginScreenState extends State<LoginScreen>
   void initState() {
     super.initState();
 
-    _emailController.text = 'dev@isium.fr';
-    _passwordController.text = 'test@isium';
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
+
+    _emailController.text = 'to@jbmanager.com';
+    _passwordController.text = 'admin_db';
 
     _bgAnimController = AnimationController(
       duration: const Duration(milliseconds: 2500),
@@ -163,9 +175,7 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                           child: const CircleAvatar(
                             radius: 32,
-                            backgroundImage: NetworkImage(
-                              'https://app.jbmanager.com/themes/default/images/rlogo.png',
-                            ),
+                            backgroundImage: AssetImage(Assets.appLogo),
                           ),
                         ),
                       ),
@@ -233,14 +243,19 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              TextField(
-                                controller: _emailController,
-                                decoration: const InputDecoration(
-                                  floatingLabelBehavior:
-                                      FloatingLabelBehavior.never,
-                                  labelText: 'votre@email.com',
-                                  prefixIcon: Icon(LucideIcons.mail),
-                                ),
+                              Consumer<AuthProvider>(
+                                builder: (context, authProvider, child) {
+                                  return TextField(
+                                    enabled: !authProvider.isLoading,
+                                    controller: _emailController,
+                                    decoration: const InputDecoration(
+                                      floatingLabelBehavior:
+                                          FloatingLabelBehavior.never,
+                                      labelText: 'votre@email.com',
+                                      prefixIcon: Icon(LucideIcons.mail),
+                                    ),
+                                  );
+                                },
                               ),
                               const SizedBox(height: 24),
                               const Text(
@@ -251,30 +266,34 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              TextField(
-                                controller: _passwordController,
-                                // can toggle obscureText
-                                obscureText: _isPasswordVisible,
-                                obscuringCharacter: _obscureCharacter,
-                                decoration: InputDecoration(
-                                  floatingLabelBehavior:
-                                      FloatingLabelBehavior.never,
-                                  labelText: _obscureCharacter * 8,
-                                  prefixIcon: Icon(LucideIcons.lock),
-                                  suffixIcon: IconButton(
-                                    icon: Icon(
-                                      _isPasswordVisible
-                                          ? LucideIcons.eyeOff
-                                          : LucideIcons.eye,
+                              Consumer<AuthProvider>(
+                                builder: (context, authProvider, child) {
+                                  return TextField(
+                                    enabled: !authProvider.isLoading,
+                                    controller: _passwordController,
+                                    obscureText: _isPasswordVisible,
+                                    obscuringCharacter: _obscureCharacter,
+                                    decoration: InputDecoration(
+                                      floatingLabelBehavior:
+                                          FloatingLabelBehavior.never,
+                                      labelText: 'Votre mot de passe',
+                                      prefixIcon: const Icon(LucideIcons.lock),
+                                      suffixIcon: IconButton(
+                                        icon: Icon(
+                                          _isPasswordVisible
+                                              ? LucideIcons.eyeOff
+                                              : LucideIcons.eye,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            _isPasswordVisible =
+                                                !_isPasswordVisible;
+                                          });
+                                        },
+                                      ),
                                     ),
-                                    onPressed: () {
-                                      setState(() {
-                                        _isPasswordVisible =
-                                            !_isPasswordVisible;
-                                      });
-                                    },
-                                  ),
-                                ),
+                                  );
+                                },
                               ),
                               const SizedBox(height: 8),
                               Row(
@@ -327,43 +346,43 @@ class _LoginScreenState extends State<LoginScreen>
                                               password,
                                             );
 
-                                            if (authProvider.isLoggedIn) {
-                                              if (context.mounted) {
-                                                Navigator.pushReplacement(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const MainScreen(),
-                                                  ),
-                                                );
-                                              }
-                                            } else {
-                                              if (context.mounted) {
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (context) =>
-                                                      AlertDialog(
-                                                        title: const Text(
-                                                          'Erreur de connexion',
-                                                        ),
-                                                        content: Text(
-                                                          authProvider.error ??
-                                                              'Unknown error',
-                                                        ),
-                                                        actions: [
-                                                          TextButton(
-                                                            onPressed: () =>
-                                                                Navigator.pop(
-                                                                  context,
-                                                                ),
-                                                            child: const Text(
-                                                              'OK',
-                                                            ),
-                                                          ),
-                                                        ],
+                                            if (!authProvider.isLoggedIn) {
+                                              showDialog(
+                                                context: navigatorKey
+                                                    .currentContext!,
+                                                builder: (context) => AlertDialog(
+                                                  title: Row(
+                                                    children: [
+                                                      const Icon(
+                                                        Icons.error_outline,
+                                                        color: Colors.red,
                                                       ),
-                                                );
-                                              }
+                                                      const SizedBox(width: 8),
+                                                      const Text(
+                                                        'Erreur de connexion',
+                                                        style: TextStyle(
+                                                          color: Colors.red,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  content: Text(
+                                                    authProvider.error ??
+                                                        'Une erreur inconnue est survenue. Veuillez réessayer.',
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () =>
+                                                          Navigator.pop(
+                                                            context,
+                                                          ),
+                                                      child: const Text('OK'),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
                                             }
                                           },
                                   );

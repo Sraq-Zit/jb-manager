@@ -27,6 +27,9 @@ class Sizes {
   /// Medium font weight: FontWeight.w500
   static const weightMedium = FontWeight.w500;
 
+  /// Semi bold font weight: FontWeight.w600
+  static const weightSemiBold = FontWeight.w600;
+
   /// Bold font weight: FontWeight.w700
   static const weightBold = FontWeight.w700;
 
