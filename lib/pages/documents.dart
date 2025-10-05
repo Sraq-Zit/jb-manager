@@ -29,8 +29,6 @@ class _DocumentsPageState extends State<DocumentsPage>
   final GlobalKey<RefreshIndicatorState> _refreshKey =
       GlobalKey<RefreshIndicatorState>();
 
-  List<int> _selectedFilter = [];
-
   List<DocumentOption> _docOptions = [];
 
   bool _isActionLoading = false;
@@ -43,17 +41,12 @@ class _DocumentsPageState extends State<DocumentsPage>
         .map((key) => key.$2)
         .toList();
     _tabController = TabController(length: _docOptions.length, vsync: this);
-    _selectedFilter = List<int>.filled(_docOptions.length, -1);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final uiProvider = Provider.of<UiProvider>(context, listen: false);
       uiProvider.searchNotifier.addListener(() {
-        _provider.getDocuments(
-          query: uiProvider.searchNotifier.value,
-          status: _selectedFilter[_tabController.index],
-          force: true,
-          reset: true,
-        );
+        _provider.clearDocuments();
+        _provider.getDocuments(force: true, reset: true);
       });
     });
   }
@@ -66,18 +59,16 @@ class _DocumentsPageState extends State<DocumentsPage>
 
   @override
   Widget build(BuildContext context) {
+    final uiProvider = Provider.of<UiProvider>(context, listen: false);
     return ChangeNotifierProvider(
-      create: (_) => DocumentProvider(_tabController, widget.category)
-        ..getDocuments(status: _selectedFilter[_tabController.index])
-        ..addScrollListener(
-          (provider) => provider.getDocuments(
-            status: _selectedFilter[_tabController.index],
-            scroll: true,
-          ),
-        ),
+      create: (_) =>
+          DocumentProvider(uiProvider, _tabController, widget.category)
+            ..getDocuments()
+            ..addScrollListener(
+              (provider) => provider.getDocuments(scroll: true),
+            ),
       builder: (context, _) {
         _provider = Provider.of<DocumentProvider>(context);
-        final uiProvider = Provider.of<UiProvider>(context);
         return Scaffold(
           body: Column(
             children: [
@@ -157,9 +148,7 @@ class _DocumentsPageState extends State<DocumentsPage>
                                 ),
                                 side: BorderSide(
                                   width: 1.3,
-                                  color:
-                                      _selectedFilter[_tabController.index] ==
-                                          entity.key
+                                  color: _provider.filter == entity.key
                                       ? Theme.of(context).colorScheme.primary
                                       : Theme.of(context).colorScheme.onSurface
                                             .withValues(alpha: 0.2),
@@ -167,9 +156,7 @@ class _DocumentsPageState extends State<DocumentsPage>
                                 label: Text(
                                   entity.value,
                                   style: TextStyle(
-                                    color:
-                                        _selectedFilter[_tabController.index] ==
-                                            entity.key
+                                    color: _provider.filter == entity.key
                                         ? Theme.of(context).colorScheme.primary
                                         : Theme.of(context)
                                               .colorScheme
@@ -181,8 +168,7 @@ class _DocumentsPageState extends State<DocumentsPage>
                                 onSelected: (isSelected) {
                                   if (isSelected) {
                                     setState(() {
-                                      _selectedFilter[_tabController.index] =
-                                          entity.key;
+                                      _provider.setFilter(entity.key);
                                     });
                                     _refreshKey.currentState?.show();
                                   }
@@ -202,11 +188,7 @@ class _DocumentsPageState extends State<DocumentsPage>
                       )
                     : RefreshIndicator(
                         key: _refreshKey,
-                        onRefresh: () => _provider.getDocuments(
-                          query: uiProvider.searchNotifier.value,
-                          status: _selectedFilter[_tabController.index],
-                          force: true,
-                        ),
+                        onRefresh: () => _provider.getDocuments(force: true),
                         child: _provider.documents!.isEmpty
                             ? Container(
                                 alignment: Alignment.center,
@@ -232,12 +214,6 @@ class _DocumentsPageState extends State<DocumentsPage>
                                             DocumentProvider.navigateToDocumentDetail(
                                               context,
                                               () => _provider.getDocuments(
-                                                query: uiProvider
-                                                    .searchNotifier
-                                                    .value,
-                                                status:
-                                                    _selectedFilter[_tabController
-                                                        .index],
                                                 reset: true,
                                                 force: true,
                                               ),
@@ -496,8 +472,6 @@ class _DocumentsPageState extends State<DocumentsPage>
                                                                                           DocumentProvider.navigateToDocumentDetail(
                                                                                             context,
                                                                                             () => _provider.getDocuments(
-                                                                                              query: uiProvider.searchNotifier.value,
-                                                                                              status: _selectedFilter[_tabController.index],
                                                                                               reset: true,
                                                                                               force: true,
                                                                                             ),
@@ -518,8 +492,6 @@ class _DocumentsPageState extends State<DocumentsPage>
                                                                                         }
 
                                                                                         _provider.getDocuments(
-                                                                                          query: uiProvider.searchNotifier.value,
-                                                                                          status: _selectedFilter[_tabController.index],
                                                                                           force: true,
                                                                                           reset: true,
                                                                                         );

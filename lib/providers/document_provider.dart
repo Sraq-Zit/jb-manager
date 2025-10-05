@@ -8,6 +8,7 @@ import 'package:jbmanager/constants/document_types.dart';
 import 'package:jbmanager/exceptions/http_exception.dart';
 import 'package:jbmanager/models/document.dart';
 import 'package:jbmanager/providers/auth_provider.dart';
+import 'package:jbmanager/providers/ui_provider.dart';
 import 'package:jbmanager/screens/detail.dart';
 import 'package:jbmanager/services/api_service.dart';
 import 'package:jbmanager/theme/color_palette.dart';
@@ -18,9 +19,11 @@ const pageLength = 20;
 
 class DocumentProvider with ChangeNotifier {
   final scrollController = ScrollController();
+  final UiProvider uiProvider;
   final Map<int, bool> _isFetchingMap = {};
   final Map<int, List<DocumentItem>?> _documents = {};
   final Map<int, int> _pagination = {};
+  late List<int> _filters;
   DocumentDetails? _documentDetail;
   String? _error;
   bool _disposed = false;
@@ -30,6 +33,7 @@ class DocumentProvider with ChangeNotifier {
   bool get isFetchingScroll => _isFetchingScroll;
   DocumentDetails? get documentDetail => _documentDetail;
   List<DocumentItem>? get documents => _documents[tabController.index];
+  int get filter => _filters[tabController.index];
   String? get error => _error;
   bool get isLoading => documents == null && _error == null;
   DocumentType get documentType => DocumentType.get(
@@ -43,10 +47,21 @@ class DocumentProvider with ChangeNotifier {
   final DocumentCategory category;
   final TabController tabController;
 
-  DocumentProvider(this.tabController, this.category) {
+  DocumentProvider(this.uiProvider, this.tabController, this.category) {
+    _filters = List.generate(tabController.length, (_) => -1);
     tabController.addListener(() {
       if (tabController.indexIsChanging) getDocuments();
     });
+  }
+
+  void setFilter(int status) {
+    _filters[tabController.index] = status;
+    getDocuments(force: true, reset: true);
+  }
+
+  void clearDocuments() {
+    _documents.clear();
+    _pagination.clear();
   }
 
   static Future<String?> doAction(
@@ -171,8 +186,6 @@ class DocumentProvider with ChangeNotifier {
   }
 
   Future<void> getDocuments({
-    int? status = -1,
-    String? query = '',
     int? user,
     bool force = false,
     bool reset = false,
@@ -217,6 +230,7 @@ class DocumentProvider with ChangeNotifier {
         'start': start.toString(),
         'length': pageLength.toString(),
       };
+      final status = filter;
       if (documentStates.keys.contains(status)) {
         params['id_status'] = status.toString();
       } else if (status == -2) {
@@ -227,8 +241,8 @@ class DocumentProvider with ChangeNotifier {
       } else if (status != -1) {
         throw HttpException('Statut de document invalide.');
       }
-
-      if (query != null && query.isNotEmpty) {
+      final query = uiProvider.searchNotifier.value;
+      if (query.isNotEmpty) {
         params['filter'] = query;
       }
 
