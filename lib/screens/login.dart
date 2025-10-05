@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jbmanager/constants/assets.dart';
@@ -7,6 +8,7 @@ import 'package:jbmanager/theme/sizes.dart';
 import 'package:jbmanager/widgets/login_button.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../providers/auth_provider.dart';
 
@@ -42,8 +44,17 @@ class _LoginScreenState extends State<LoginScreen>
       ),
     );
 
-    _emailController.text = 'to@jbmanager.com';
-    _passwordController.text = 'admin_db';
+    _emailController.text = kDebugMode ? 'dev@isium.fr' : '';
+    _passwordController.text = kDebugMode ? 'Kifkifkif' : '';
+
+    SharedPreferences.getInstance().then((prefs) {
+      final savedUsername = prefs.getString('last_username');
+      if (savedUsername != null) {
+        setState(() {
+          _emailController.text = savedUsername;
+        });
+      }
+    });
 
     _bgAnimController = AnimationController(
       duration: const Duration(milliseconds: 2500),
@@ -304,13 +315,22 @@ class _LoginScreenState extends State<LoginScreen>
                                     children: [
                                       SizedBox(
                                         width: 30,
-                                        child: Checkbox(
-                                          value: _rememberMe,
-                                          onChanged: (bool? value) {
-                                            setState(() {
-                                              _rememberMe = value ?? false;
-                                            });
-                                          },
+                                        child: Consumer<AuthProvider>(
+                                          builder:
+                                              (context, authProvider, child) {
+                                                return Checkbox(
+                                                  value: _rememberMe,
+                                                  onChanged:
+                                                      authProvider.isLoading
+                                                      ? null
+                                                      : (bool? value) {
+                                                          setState(() {
+                                                            _rememberMe =
+                                                                value ?? false;
+                                                          });
+                                                        },
+                                                );
+                                              },
                                         ),
                                       ),
                                       const Text(

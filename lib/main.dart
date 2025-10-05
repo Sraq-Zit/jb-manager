@@ -4,6 +4,7 @@ import 'package:jbmanager/screens/login.dart';
 import 'package:jbmanager/screens/home.dart';
 import 'package:jbmanager/screens/splash.dart';
 import 'package:jbmanager/theme/app_theme.dart';
+import 'package:jbmanager/widgets/error_page.dart';
 import 'package:provider/provider.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -23,6 +24,15 @@ class MyApp extends StatelessWidget {
         navigatorKey: navigatorKey,
         theme: AppTheme.themeData,
         home: const RootScreen(),
+        onUnknownRoute: (settings) => MaterialPageRoute(
+          builder: (_) => ErrorPage(
+            title: 'Page Not Found',
+            message: 'The page you requested does not exist.',
+            onRetry: () {
+              navigatorKey.currentState?.pop();
+            },
+          ),
+        ),
       ),
     );
   }
@@ -36,25 +46,25 @@ class RootScreen extends StatefulWidget {
 }
 
 class _RootScreenState extends State<RootScreen> {
-  bool _isSimulatingSplash = true;
+  bool _isSimulatingSplash = false;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<AuthProvider>(context, listen: false).loadUser();
     });
-    Future.delayed(const Duration(seconds: 4), () {
-      setState(() {
-        _isSimulatingSplash = false;
-      });
-    });
+    // Future.delayed(const Duration(seconds: 4), () {
+    //   setState(() {
+    //     _isSimulatingSplash = false;
+    //   });
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, _) {
-        if (authProvider.isLoading || _isSimulatingSplash) {
+        if (authProvider.isLoadingUser || _isSimulatingSplash) {
           return SplashScreen();
         }
         if (authProvider.isLoggedIn) {

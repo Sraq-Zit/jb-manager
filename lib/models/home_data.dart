@@ -265,8 +265,14 @@ class SalesAnalysis {
     });
     maxIndex = max(maxIndex, months);
     return SalesAnalysis(
-      axisLabels: axisLabels.sublist(max(0, maxIndex - months), maxIndex),
-      values: values.sublist(max(0, maxIndex - months), maxIndex),
+      axisLabels: axisLabels.sublist(
+        max(0, maxIndex - months),
+        min(axisLabels.length, maxIndex),
+      ),
+      values: values.sublist(
+        max(0, maxIndex - months),
+        min(values.length, maxIndex),
+      ),
       legendLabels: legendLabels,
     );
   }

@@ -8,11 +8,12 @@ class UserStorage {
   static User? _user;
   static User? get user => _user;
 
-  Future<void> saveUser(User user) async {
+  Future<void> saveUser(User user, [String? username]) async {
     final prefs = await SharedPreferences.getInstance();
     final userJson = jsonEncode(user.toJson());
     _user = user;
     await prefs.setString(_userKey, userJson);
+    if (username != null) await prefs.setString('last_username', username);
   }
 
   Future<User?> getUser() async {

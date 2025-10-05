@@ -14,9 +14,9 @@ class CustomDrawer extends StatelessWidget {
   final Function(MenuOption) onOptionSelected;
   static const options = [
     (MenuOption.dashboard, LucideIcons.barChart3, 'Tableau de bord'),
-    (MenuOption.sales, LucideIcons.users, 'Clients'),
-    (MenuOption.purchases, LucideIcons.fileText, 'Devis'),
-    (MenuOption.statistics, LucideIcons.trendingUp, 'Statistiques'),
+    (MenuOption.sales, LucideIcons.shoppingCart, 'Ventes'),
+    (MenuOption.purchases, LucideIcons.package, 'Achats'),
+    (MenuOption.activities, LucideIcons.trendingUp, 'Activités'),
     null,
     (MenuOption.settings, LucideIcons.settings, 'Paramètres'),
     (MenuOption.help, LucideIcons.helpCircle, 'Aide'),

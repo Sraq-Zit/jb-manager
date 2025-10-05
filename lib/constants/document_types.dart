@@ -4,14 +4,13 @@ typedef C = DocumentCategory;
 typedef O = DocumentOption;
 
 const documentTypes = {
-  (C.sales, O.quote): DocumentType(5, C.sales, O.quote),
-  (C.sales, O.invoice): DocumentType(8, C.sales, O.quote),
+  (C.sales, O.quote): DocumentType(8, C.sales, O.quote),
+  (C.sales, O.order): DocumentType(6, C.sales, O.order),
+  (C.sales, O.delivery): DocumentType(7, C.sales, O.delivery),
+  (C.sales, O.invoice): DocumentType(5, C.sales, O.invoice),
 
-  // TODO: this is only for testing purposes, need to change this later
-  (C.sales, O.order): DocumentType(5, C.sales, O.quote),
-  (C.sales, O.delivery): DocumentType(8, C.sales, O.quote),
-  (C.purchases, O.quote): DocumentType(5, C.sales, O.quote),
-  (C.purchases, O.invoice): DocumentType(8, C.sales, O.quote),
-  (C.purchases, O.order): DocumentType(5, C.sales, O.quote),
-  (C.purchases, O.delivery): DocumentType(8, C.sales, O.quote),
+  (C.purchases, O.quote): DocumentType(16, C.purchases, O.quote),
+  (C.purchases, O.order): DocumentType(14, C.purchases, O.order),
+  (C.purchases, O.receipt): DocumentType(15, C.purchases, O.receipt),
+  (C.purchases, O.invoice): DocumentType(13, C.purchases, O.invoice),
 };

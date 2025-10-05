@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jbmanager/models/document.dart';
@@ -8,23 +10,32 @@ enum MenuOption {
   dashboard,
   sales,
   purchases,
-  statistics,
+  activities,
   settings,
   help,
   logout,
 }
+
+const List<MenuOption> menusWithSearchIcon = [
+  MenuOption.sales,
+  MenuOption.purchases,
+];
 
 class UiProvider extends ChangeNotifier {
   MenuOption _currentMenuOption = MenuOption.dashboard;
 
   final Map<String, Uint8List> _cachedImages = {};
 
+  final _searchNotifier = ValueNotifier<String>('');
+  Timer? _searchDebounce;
   AnimationController? _slideController;
   Animation<Offset>? _slideAnimation;
   bool _isDrawerOpen = false;
   Animation<Offset>? get slideAnimation => _slideAnimation;
   MenuOption get currentMenuOption => _currentMenuOption;
   bool get isDrawerOpen => _isDrawerOpen;
+  String get searchQuery => _searchNotifier.value;
+  ValueNotifier<String> get searchNotifier => _searchNotifier;
 
   Animation<Offset> initializeAnimation(TickerProvider vsync) {
     if (_slideController == null && _slideAnimation == null) {
@@ -44,16 +55,29 @@ class UiProvider extends ChangeNotifier {
     return _slideAnimation!;
   }
 
+  void search(String query) {
+    if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
+      _searchNotifier.value = query;
+    });
+  }
+
   Widget? buildBody() {
     switch (_currentMenuOption) {
       case MenuOption.dashboard:
         return const DashboardPage();
       case MenuOption.sales:
-        return const Text('Clients Page');
+        return const DocumentsPage(
+          key: Key('sales_page'),
+          category: DocumentCategory.sales,
+        );
       case MenuOption.purchases:
-        return const DocumentsPage(category: DocumentCategory.purchases);
-      case MenuOption.statistics:
-        return const Text('Statistics Page');
+        return const DocumentsPage(
+          key: Key('purchases_page'),
+          category: DocumentCategory.purchases,
+        );
+      case MenuOption.activities:
+        return const Text('activities Page');
       case MenuOption.settings:
         return const Text('Settings Page');
       case MenuOption.help:

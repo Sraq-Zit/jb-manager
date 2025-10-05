@@ -7,16 +7,19 @@ import '../services/api_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   bool _isLoading = true;
+  bool _isLoadingUser = true;
   String? _error;
 
   AuthProvider();
   String? get error => _error;
   bool get isLoading => _isLoading;
+  bool get isLoadingUser => _isLoadingUser;
   bool get isLoggedIn => user != null;
   User? get user => UserStorage.user;
 
   Future<bool> loadUser() async {
     _isLoading = true;
+    _isLoadingUser = true;
     notifyListeners();
     await UserStorage().getUser();
     if (user != null) {
@@ -27,6 +30,7 @@ class AuthProvider extends ChangeNotifier {
       } on HttpException catch (_) {}
     }
     _isLoading = false;
+    _isLoadingUser = false;
     notifyListeners();
     return user != null;
   }
@@ -62,7 +66,7 @@ class AuthProvider extends ChangeNotifier {
       }
       response['settings'] = await _fetchSettings(response['token']);
 
-      await UserStorage().saveUser(User.fromJson(response));
+      await UserStorage().saveUser(User.fromJson(response), username);
     } on HttpException catch (e) {
       _error = e.message;
     } finally {

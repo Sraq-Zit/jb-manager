@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jbmanager/models/document.dart';
 
 const documentStates = {
+  0: DocumentStatus(0, 0, '', Colors.grey),
   1: DocumentStatus(1, 5, 'En cours', Colors.blue),
   2: DocumentStatus(2, 5, 'Confirmé', Colors.green),
   3: DocumentStatus(3, 5, 'Échu', Colors.red),

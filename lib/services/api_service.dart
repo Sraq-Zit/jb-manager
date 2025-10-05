@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:jbmanager/main.dart';
+import 'package:jbmanager/models/document.dart';
 import 'package:jbmanager/providers/auth_provider.dart';
 import 'package:jbmanager/services/user_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../exceptions/http_exception.dart';
@@ -20,6 +23,7 @@ class ApiService {
     String endpoint, {
     Map<String, dynamic>? params,
     bool auth = false,
+    bool absoluteUrl = false,
   }) async {
     if (auth) {
       final token = (await UserStorage().getUser())?.token;
@@ -28,7 +32,8 @@ class ApiService {
     }
     String queryString = Uri(queryParameters: params).query;
     queryString = queryString.isNotEmpty ? '?$queryString' : '';
-    final url = Uri.parse('$baseUrl$endpoint$queryString');
+    endpoint = absoluteUrl ? endpoint : '$baseUrl$endpoint';
+    final url = Uri.parse('$endpoint$queryString');
     final response = await http.get(url);
 
     return _processResponse(response);
@@ -38,18 +43,45 @@ class ApiService {
     String endpoint, {
     Map<String, dynamic>? body,
     bool auth = false,
+    bool absoluteUrl = false,
   }) async {
-    final url = Uri.parse('$baseUrl$endpoint');
+    endpoint = absoluteUrl ? endpoint : '$baseUrl$endpoint';
+    final url = Uri.parse(endpoint);
 
     body ??= {};
 
     if (auth) {
       body['token'] = (await UserStorage().getUser())?.token;
     }
-
-    final response = await http.post(url, body: body);
+    late http.Response response;
+    try {
+      response = await http.post(url, body: body);
+    } on http.ClientException catch (e) {
+      throw HttpException(e.message);
+    } catch (e) {
+      throw HttpException('Erreur de connexion au serveur');
+    }
 
     return _processResponse(response);
+  }
+
+  Future<File> getPrintPdf(String id, Action action) async {
+    final url = Uri.parse(action.urlFormatted(id));
+
+    final body = {
+      'action': action.action,
+      'token': (await UserStorage().getUser())?.token,
+    };
+    // save result pdf file to tmp file
+    final response = await http.post(url, body: body);
+    if (response.statusCode == 200) {
+      final dir = await getTemporaryDirectory();
+      final file = await File('${dir.path}/document.pdf').create();
+      await file.writeAsBytes(response.bodyBytes);
+      return file;
+    } else {
+      throw HttpException('Erreur lors de la génération du PDF');
+    }
   }
 
   FutureOr<Map<String, dynamic>> _processResponse(

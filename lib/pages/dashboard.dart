@@ -6,6 +6,7 @@ import 'package:jbmanager/models/home_data.dart';
 import 'package:jbmanager/theme/color_palette.dart';
 import 'package:jbmanager/theme/sizes.dart';
 import 'package:jbmanager/providers/home_provider.dart';
+import 'package:jbmanager/widgets/error_page.dart';
 import 'package:jbmanager/widgets/loader.dart';
 import 'package:provider/provider.dart';
 import 'package:jbmanager/widgets/bar_chart_card.dart';
@@ -56,7 +57,15 @@ class DashboardPage extends StatelessWidget {
             .toList();
 
         return provider.homeData == null
-            ? Center(child: Loader())
+            ? provider.error == null
+                  ? Center(child: Loader())
+                  : ErrorPage(
+                      title: 'Erreur',
+                      message: provider.error ?? 'Une erreur est survenue',
+                      onRetry: () {
+                        provider.fetchHomeData();
+                      },
+                    )
             : RefreshIndicator(
                 key: provider.refreshKey,
                 onRefresh: () {

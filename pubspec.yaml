@@ -49,6 +49,9 @@ dependencies:
   permission_handler: ^12.0.1
   flutter_vap_plus: ^1.2.10
   archive: ^4.0.7
+  path_provider: ^2.1.5
+  open_filex: ^4.7.0
+  skeletonizer: ^2.1.0+1
 
 dev_dependencies:
   flutter_test:
@@ -60,9 +63,22 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: "^0.14.4"
+  flutter_native_splash: ^2.4.6
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
+
+flutter_native_splash:
+  color: "#ffffff"
+  color_dark: "#ffffff"
+  image: assets/images/rlogo.png
+  image_dark: assets/images/rlogo.png
+  fullscreen: true
+
+flutter_launcher_icons:
+  android: "assets/images/rlogo.png"
+  ios: "assets/images/rlogo.png"
 
 # The following section is specific to Flutter packages.
 flutter:
@@ -76,7 +92,6 @@ flutter:
   assets:
     - assets/images/rlogo.png
     - assets/images/splash-bg.jpg
-    - assets/animations/blob_frames.zip
     - assets/animations/output.webp
 
   # An image asset can refer to one or more resolution-specific "variants", see

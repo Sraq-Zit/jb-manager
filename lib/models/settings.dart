@@ -1,8 +1,8 @@
 class Settings {
   final String idDevise;
   final List<Devise> devises;
-  final List<Tva> listTva;
-  final List<Unities> unities;
+  final Map<String, Tva> listTva;
+  final Map<String, Unities> unities;
   final List<String> linesTypes;
   final List<Priority> priorities;
   final List<UserDetail> users;
@@ -18,21 +18,27 @@ class Settings {
   });
 
   static Settings sample() => Settings(
-        idDevise: 'EUR',
-        devises: [Devise.sample()],
-        listTva: [Tva.sample()],
-        unities: [Unities.sample()],
-        linesTypes: ['product', 'service'],
-        priorities: [Priority.sample()],
-        users: [UserDetail.sample()],
-      );
+    idDevise: 'EUR',
+    devises: [Devise.sample()],
+    listTva: {Tva.sample().id: Tva.sample()},
+    unities: {Unities.sample().id: Unities.sample()},
+    linesTypes: ['product', 'service'],
+    priorities: [Priority.sample()],
+    users: [UserDetail.sample()],
+  );
 
   factory Settings.fromJson(Map<String, dynamic> json) => Settings(
     idDevise: json['id_devise'],
     devises: List<Devise>.from(json['devises'].map((e) => Devise.fromJson(e))),
-    listTva: List<Tva>.from(json['list_tva'].map((e) => Tva.fromJson(e))),
-    unities: List<Unities>.from(
-      json['unities'].map((e) => Unities.fromJson(e)),
+    listTva: Map.fromEntries(
+      (json['list_tva'] as List)
+          .map((e) => Tva.fromJson(e))
+          .map((tva) => MapEntry(tva.id, tva)),
+    ),
+    unities: Map.fromEntries(
+      (json['unities'] as List)
+          .map((e) => Unities.fromJson(e))
+          .map((unit) => MapEntry(unit.id, unit)),
     ),
     linesTypes: List<String>.from(json['lines_types']),
     priorities: List<Priority>.from(
@@ -48,8 +54,10 @@ class Settings {
     'devises': devises
         .map((e) => {'id': e.id, 'designation': e.designation})
         .toList(),
-    'list_tva': listTva.map((e) => {'id': e.id, 'taux': e.taux}).toList(),
-    'unities': unities.map((e) => {'id': e.id, 'code': e.code}).toList(),
+    'list_tva': listTva.values
+        .map((e) => {'id': e.id, 'taux': e.taux})
+        .toList(),
+    'unities': unities.values.map((e) => {'id': e.id, 'code': e.code}).toList(),
     'lines_types': linesTypes,
     'priorities': priorities.map((e) => {'id': e.id, 'name': e.name}).toList(),
     'users': users
@@ -71,10 +79,7 @@ class Devise {
 
   Devise({required this.id, required this.designation});
 
-  static Devise sample() => Devise(
-        id: 'USD',
-        designation: 'US Dollar',
-      );
+  static Devise sample() => Devise(id: 'USD', designation: 'US Dollar');
 
   factory Devise.fromJson(Map<String, dynamic> json) =>
       Devise(id: json['id'], designation: json['designation']);
@@ -86,10 +91,7 @@ class Tva {
 
   Tva({required this.id, required this.taux});
 
-  static Tva sample() => Tva(
-        id: '1',
-        taux: '20%',
-      );
+  static Tva sample() => Tva(id: '1', taux: '20%');
 
   factory Tva.fromJson(Map<String, dynamic> json) =>
       Tva(id: json['id'], taux: json['taux']);
@@ -101,10 +103,7 @@ class Unities {
 
   Unities({required this.id, required this.code});
 
-  static Unities sample() => Unities(
-        id: '1',
-        code: 'kg',
-      );
+  static Unities sample() => Unities(id: '1', code: 'kg');
 
   factory Unities.fromJson(Map<String, dynamic> json) =>
       Unities(id: json['id'], code: json['code']);
@@ -116,10 +115,7 @@ class Priority {
 
   Priority({required this.id, required this.name});
 
-  static Priority sample() => Priority(
-        id: '1',
-        name: 'High',
-      );
+  static Priority sample() => Priority(id: '1', name: 'High');
 
   factory Priority.fromJson(Map<String, dynamic> json) =>
       Priority(id: json['id'], name: json['name']);
@@ -139,11 +135,11 @@ class UserDetail {
   });
 
   static UserDetail sample() => UserDetail(
-        id: '123',
-        firstname: 'John',
-        lastname: 'Doe',
-        email: 'john.doe@example.com',
-      );
+    id: '123',
+    firstname: 'John',
+    lastname: 'Doe',
+    email: 'john.doe@example.com',
+  );
 
   factory UserDetail.fromJson(Map<String, dynamic> json) => UserDetail(
     id: json['id'],

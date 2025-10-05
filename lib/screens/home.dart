@@ -1,68 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:jbmanager/constants/assets.dart';
 import 'package:jbmanager/providers/auth_provider.dart';
 import 'package:jbmanager/providers/ui_provider.dart';
 import 'package:jbmanager/theme/sizes.dart';
+import 'package:jbmanager/widgets/appbar.dart';
 import 'package:jbmanager/widgets/custom_drawer.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
-
-AppBar buildAppBar(BuildContext context) {
-  return AppBar(
-    systemOverlayStyle: const SystemUiOverlayStyle(
-      systemNavigationBarColor: Colors.transparent,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ),
-    surfaceTintColor: Colors.white,
-    shape: Border(bottom: BorderSide(color: Colors.grey.shade200, width: 1)),
-    elevation: 1,
-    title: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        SizedBox(width: 40),
-        // Logo
-        SizedBox(
-          height: 35,
-          width: 35,
-          child: CircleAvatar(
-            radius: 16,
-            backgroundImage: AssetImage(Assets.appLogo),
-          ),
-        ),
-        // Actions: Search and Notifications
-        Row(
-          children: [
-            IconButton(
-              icon: const Icon(LucideIcons.search, color: Colors.grey),
-              onPressed: () {},
-            ),
-            Stack(
-              children: [
-                IconButton(
-                  icon: const Icon(LucideIcons.bell, color: Colors.grey),
-                  onPressed: () {},
-                ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
-}
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -77,7 +21,7 @@ class _MainScreenState extends State<MainScreen> {
     (LucideIcons.shoppingCart, 'Ventes', MenuOption.sales),
     null,
     (LucideIcons.package, 'Achats', MenuOption.purchases),
-    (LucideIcons.trendingUp, 'Stats', MenuOption.statistics),
+    (LucideIcons.trendingUp, 'Activités', MenuOption.activities),
   ];
 
   late List<bool> _navTapDown;
@@ -88,13 +32,22 @@ class _MainScreenState extends State<MainScreen> {
       create: (_) => UiProvider(),
       builder: (context, _) {
         final provider = Provider.of<UiProvider>(context);
+        final jbAppBar = JBAppBar(
+          onSearch: !menusWithSearchIcon.contains(provider.currentMenuOption)
+              ? null
+              : provider.search,
+        );
         return Scaffold(
-          appBar: buildAppBar(context),
+          appBar: jbAppBar.build(context),
           drawer: _buildDrawer(context),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerDocked,
           floatingActionButton: _buildFAB(context),
-          body: provider.buildBody(),
+          body: GestureDetector(
+            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            behavior: HitTestBehavior.translucent,
+            child: provider.buildBody(),
+          ),
           // body: BlobCreator(),
           bottomNavigationBar: _buildBottomNav(context),
         );
