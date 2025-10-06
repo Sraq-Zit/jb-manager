@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:jbmanager/models/document.dart';
 import 'package:jbmanager/pages/dashboard.dart';
 import 'package:jbmanager/pages/documents.dart';
+import 'package:jbmanager/pages/settings_page.dart';
 
 enum MenuOption {
   dashboard,
@@ -77,9 +78,14 @@ class UiProvider extends ChangeNotifier {
           category: DocumentCategory.purchases,
         );
       case MenuOption.activities:
-        return const Text('activities Page');
+        return const DocumentsPage(
+          key: Key('activities_page'),
+          title: 'activité',
+          feminine: true,
+          category: DocumentCategory.activities,
+        );
       case MenuOption.settings:
-        return const Text('Settings Page');
+        return SettingsPage();
       case MenuOption.help:
         return const Text('Help Page');
       case MenuOption.logout:

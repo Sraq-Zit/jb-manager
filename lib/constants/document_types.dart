@@ -13,4 +13,8 @@ const documentTypes = {
   (C.purchases, O.order): DocumentType(14, C.purchases, O.order),
   (C.purchases, O.receipt): DocumentType(15, C.purchases, O.receipt),
   (C.purchases, O.invoice): DocumentType(13, C.purchases, O.invoice),
+
+  (C.activities, O.info): DocumentType(-1, C.purchases, O.invoice),
+  (C.activities, O.action): DocumentType(-1, C.purchases, O.invoice),
+  (C.activities, O.rdv): DocumentType(-1, C.purchases, O.invoice),
 };

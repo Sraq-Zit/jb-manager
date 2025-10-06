@@ -14,8 +14,15 @@ import 'package:open_filex/open_filex.dart';
 import 'package:provider/provider.dart';
 
 class DocumentsPage extends StatefulWidget {
+  final String title;
+  final bool feminine;
   final DocumentCategory category;
-  const DocumentsPage({super.key, required this.category});
+  const DocumentsPage({
+    super.key,
+    required this.category,
+    this.title = 'document',
+    this.feminine = false,
+  });
 
   @override
   State<DocumentsPage> createState() => _DocumentsPageState();
@@ -194,7 +201,7 @@ class _DocumentsPageState extends State<DocumentsPage>
                                 alignment: Alignment.center,
                                 padding: const EdgeInsets.all(20.0),
                                 child: Text(
-                                  'Aucun document trouvé.',
+                                  'Aucun${widget.feminine ? 'e' : ''} ${widget.title} trouvé${widget.feminine ? 'e' : ''}.',
                                   style: TextStyle(
                                     color: Colors.grey.shade600,
                                     fontSize: Sizes.textMd,

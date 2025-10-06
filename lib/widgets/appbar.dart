@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:jbmanager/widgets/notification_popup.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:jbmanager/constants/assets.dart';
 
@@ -90,7 +91,38 @@ class JBAppBar {
             children: [
               IconButton(
                 icon: const Icon(LucideIcons.bell, color: Colors.grey),
-                onPressed: () {},
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: true,
+                    barrierColor: Colors.transparent, // no dark overlay
+                    builder: (context) {
+                      return Align(
+                        alignment:
+                            Alignment.topRight, // position like a notification
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            top: 50.0,
+                            right: 16.0,
+                          ),
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            child: NotificationPopup(
+                              notifications: [
+                                'Notification 1',
+                                'Notification 2',
+                                'Notification 3',
+                                'Notification 1',
+                                'Notification 2',
+                                'Notification 3',
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
               Positioned(
                 top: 8,

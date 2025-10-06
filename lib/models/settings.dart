@@ -5,7 +5,7 @@ class Settings {
   final Map<String, Unities> unities;
   final List<String> linesTypes;
   final List<Priority> priorities;
-  final List<UserDetail> users;
+  final List<UserDetail>? users;
 
   Settings({
     required this.idDevise,
@@ -44,9 +44,11 @@ class Settings {
     priorities: List<Priority>.from(
       json['priorities'].map((e) => Priority.fromJson(e)),
     ),
-    users: List<UserDetail>.from(
-      json['users'].map((e) => UserDetail.fromJson(e)),
-    ),
+    users: json['users'] == null
+        ? null
+        : List<UserDetail>.from(
+            json['users'].map((e) => UserDetail.fromJson(e)),
+          ),
   );
 
   Map<String, dynamic> toJson() => {
@@ -61,7 +63,7 @@ class Settings {
     'lines_types': linesTypes,
     'priorities': priorities.map((e) => {'id': e.id, 'name': e.name}).toList(),
     'users': users
-        .map(
+        ?.map(
           (e) => {
             'id': e.id,
             'firstname': e.firstname,

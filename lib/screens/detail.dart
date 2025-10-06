@@ -208,24 +208,23 @@ class _DetailScreenState extends State<DetailScreen> {
   late JBAppBar _jbAppBar;
 
   void _fetchDocumentDetails() async {
-    DocumentProvider.getDocumentDetail(documentItem.id)
-        .then((doc) {
-          setState(() {
-            document = doc;
-          });
-        })
-        .catchError((error) {
-          if ((error is! HttpException)) {
-            print(error);
-          }
-          error = error is HttpException
-              ? error.message
-              : 'Une erreur est survenue, merci de réessayer.';
-
-          if (mounted) Fluttertoast.showToast(msg: error);
-          if (mounted) Navigator.of(context).pop();
-          return null;
-        });
+    DocumentProvider.getDocumentDetail(documentItem.id).then((doc) {
+      setState(() {
+        document = doc;
+      });
+    });
+    // .catchError((error) {
+    //   if ((error is! HttpException)) {
+    //     print(error);
+    //   }
+    //   error = error is HttpException
+    //       ? error.message
+    //       : 'Une erreur est survenue, merci de réessayer.';
+    //
+    //   if (mounted) Fluttertoast.showToast(msg: error);
+    //   if (mounted) Navigator.of(context).pop();
+    //   return null;
+    // });
   }
 
   @override

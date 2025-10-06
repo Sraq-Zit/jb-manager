@@ -4,14 +4,18 @@ import 'package:jbmanager/constants/document_states.dart';
 import 'package:jbmanager/constants/document_types.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-enum DocumentCategory { sales, purchases }
+enum DocumentCategory { sales, purchases, activities }
 
 enum DocumentOption {
   invoice('Devis'),
   order('Cmds'),
   delivery('Livraison'),
   receipt('Réceptions'),
-  quote('Factures');
+  quote('Factures'),
+
+  info('Info'),
+  action('Action'),
+  rdv('RDV');
 
   final String label;
   const DocumentOption(this.label);
@@ -380,6 +384,20 @@ class DocumentDetailCard {
   });
 
   factory DocumentDetailCard.fromJson(Map<String, dynamic> json) {
+    for (var field in [
+      'quantity',
+      'pu',
+      'pu_ttc',
+      'discount',
+      'total_ht',
+      'total_ttc',
+      'total_tva',
+      'prev',
+    ]) {
+      if (json[field] == null || json[field].toString().isEmpty) {
+        json[field] = '0';
+      }
+    }
     return DocumentDetailCard(
       validateDocument: json['validate_document'],
       idItem: json['id_item'],

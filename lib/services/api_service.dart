@@ -8,16 +8,18 @@ import 'package:jbmanager/services/user_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../exceptions/http_exception.dart';
 import 'package:http/http.dart' as http;
 
+const defaultBaseUrl = 'https://app.jbmanager.com/api/mobile';
 const apiService = ApiService();
 
 class ApiService {
   final String baseUrl;
 
-  const ApiService({this.baseUrl = 'https://app.jbmanager.com/api/mobile'});
+  const ApiService({this.baseUrl = defaultBaseUrl});
 
   Future<dynamic> get(
     String endpoint, {
@@ -25,6 +27,9 @@ class ApiService {
     bool auth = false,
     bool absoluteUrl = false,
   }) async {
+    final baseUrl =
+        (await SharedPreferences.getInstance()).getString('api_base_url') ??
+        this.baseUrl;
     if (auth) {
       final token = (await UserStorage().getUser())?.token;
       params ??= {};
@@ -45,6 +50,9 @@ class ApiService {
     bool auth = false,
     bool absoluteUrl = false,
   }) async {
+    final baseUrl =
+        (await SharedPreferences.getInstance()).getString('api_base_url') ??
+        this.baseUrl;
     endpoint = absoluteUrl ? endpoint : '$baseUrl$endpoint';
     final url = Uri.parse(endpoint);
 
