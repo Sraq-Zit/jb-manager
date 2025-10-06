@@ -61,7 +61,6 @@ class _DocumentsPageState extends State<DocumentsPage>
   @override
   void dispose() {
     _tabController.dispose();
-    _provider.dispose();
     super.dispose();
   }
 

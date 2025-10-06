@@ -13,7 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../exceptions/http_exception.dart';
 import 'package:http/http.dart' as http;
 
-const defaultBaseUrl = 'https://app.jbmanager.com/api/mobile';
+const defaultBaseUrl = 'https://socoreg.jbmanager.com/api/mobile';
 const apiService = ApiService();
 
 class ApiService {
