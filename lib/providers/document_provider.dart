@@ -191,6 +191,7 @@ class DocumentProvider with ChangeNotifier {
     bool reset = false,
     bool scroll = false,
   }) async {
+    if (_disposed) return;
     final index = tabController.index;
     if (!force && !scroll && !reset && _documents.containsKey(index)) {
       return notifyListeners();
